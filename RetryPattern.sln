@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RetryPattern", "RetryPatter
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RetryPattern.Http", "RetryPattern.Http\RetryPattern.Http.csproj", "{CB96E37B-4EF1-46F7-863B-E1D588FEE209}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetryPattern.Tests", "RetryPattern.Tests\RetryPattern.Tests.csproj", "{2CBD52D0-96CD-418D-8D22-5EBA4B4C370A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RetryPattern.Tests", "RetryPattern.Tests\RetryPattern.Tests.csproj", "{2CBD52D0-96CD-418D-8D22-5EBA4B4C370A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
