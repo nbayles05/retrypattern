@@ -86,7 +86,6 @@ public class TimeoutShouldRetry : MaxCountShouldRetry, IShouldRetry
 
 To use your custom **IShouldRetry** -or- **INextWait**, call any **Retry.Run** or **Retry.RunAsync** methods passing a RetryStrategy:
 ```
-// using RunAsync here and returning a value, but you can also use the non-async version and you don't have to return a value
 var result = await Retry.RunAsync(async () =>
 {
     // return the result of something that might throw an exception
