@@ -7,16 +7,16 @@ namespace Tests
 
     public class MaxCountTests
     {
-        [TestCase(0)]
-        [TestCase(1)]
-        [TestCase(2)]
-        [TestCase(3)]
-        [TestCase(4)]
-        [TestCase(99)]
-        public void ShouldRetryMaxTimes(int maxRetries)
+        [TestCase(0, 1)]
+        [TestCase(1, 1)]
+        [TestCase(2, 2)]
+        [TestCase(3, 3)]
+        [TestCase(4, 4)]
+        [TestCase(99, 99)]
+        public void ShouldRetryMaxTimes(int maxFailCount, int expectedTryCount)
         {
             var runCount = 0;
-            var shouldRetry = new MaxCountShouldRetry(maxRetries);
+            var shouldRetry = new MaxCountShouldRetry(maxFailCount);
             var nextWait = new NoWait();
             var retry = new RetryStrategy(shouldRetry, nextWait);
 
@@ -32,7 +32,7 @@ namespace Tests
             }
             catch (Exception)
             {
-                Assert.IsTrue(runCount == maxRetries + 1);
+                Assert.IsTrue(runCount == expectedTryCount);
             }
         }
     }

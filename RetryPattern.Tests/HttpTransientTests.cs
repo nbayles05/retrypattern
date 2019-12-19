@@ -1,18 +1,25 @@
 using NUnit.Framework;
 using RetryPattern;
 using System;
+using System.IO;
 using System.Net;
+using System.Net.Sockets;
 
 namespace Tests
 {
-
     public class HttpTransientTests
     {
-        [TestCase(HttpStatusCode.RequestTimeout)]
-        public void ShouldRetryTransientWebErrors(HttpStatusCode statusCode)
+        // should retry to the max number of times
+        [TestCase(HttpStatusCode.RequestTimeout, 5, 5)]
+        [TestCase(HttpStatusCode.TooManyRequests, 5, 5)]
+        // should retry once
+        [TestCase(HttpStatusCode.Unauthorized, 5, 2)]
+        // should never retry
+        [TestCase(HttpStatusCode.BadRequest, 5, 1)]
+        public void ShouldRetryHttpStatusCodes(HttpStatusCode statusCode, int maxFailCount, int expectedTryCount)
         {
-            var runCount = 0;
-            var shouldRetry = new HttpTransientShouldRetry();
+            var tryCount = 0;
+            var shouldRetry = new HttpTransientShouldRetry(maxFailCount);
             var nextWait = new NoWait();
             var retry = new RetryStrategy(shouldRetry, nextWait);
 
@@ -20,34 +27,83 @@ namespace Tests
             {
                 Retry.Run(() =>
                 {
-                    runCount++;
-                    if (runCount > 1)
-                    {
-                        // pretend it worked the second time
-                        return;
-                    }
+                    tryCount++;
+
                     // make sure it retries the number of expected times by throwing an exception
-                    throw new WebException("test", WebExceptionStatus.ProtocolError);
+                    var response = HttpMock.CreateWebResponse(statusCode, null);
+
+                    // using WebExceptionStatus.MessageLengthLimitExceeded because that is one that never triggers a retry
+                    // so we can be sure that we are testing the HttpStatusCode instead of WebException.Status
+                    throw new WebException("test", null, WebExceptionStatus.MessageLengthLimitExceeded, response);
                 }, retry);
 
-                Assert.AreEqual(2, runCount);
-                
+                Assert.Fail("should have thrown an exception");
+
             }
             catch (Exception)
             {
-                Assert.Fail("should not have thrown an exception");
+                Assert.AreEqual(expectedTryCount, tryCount);
+            }
+        }
+
+        // this is a retry once error
+        [TestCase(WebExceptionStatus.CacheEntryNotFound, 5, 2)]
+        // this is a retry many error (transient)
+        [TestCase(WebExceptionStatus.Timeout, 5, 5)]
+        // this is a don't retry error
+        [TestCase(WebExceptionStatus.MessageLengthLimitExceeded, 5, 1)]
+        public void ShouldRetrySomeWebExceptions(WebExceptionStatus statusCode, int maxFailCount, int expectedTryCount)
+        {
+            Assert.IsTrue(expectedTryCount <= maxFailCount, "Invalid expectedTryCount or maxFailCount");
+
+            var tryCount = 0;
+            var shouldRetry = new HttpTransientShouldRetry(maxFailCount);
+            var nextWait = new NoWait();
+            var retry = new RetryStrategy(shouldRetry, nextWait);
+
+            try
+            {
+                Retry.Run(() =>
+                {
+                    tryCount++;
+                    throw new WebException("test", statusCode);
+                }, retry);
+                Assert.Fail("should have thrown an exception");
+            }
+            catch (Exception)
+            {
+                Assert.AreEqual(expectedTryCount, tryCount);
+            }
+        }
+
+        public void ShouldRetryTimeoutException()
+        {
+            var tryCount = 0;
+            var shouldRetry = new HttpTransientShouldRetry(5);
+            var nextWait = new NoWait();
+            var retry = new RetryStrategy(shouldRetry, nextWait);
+
+            try
+            {
+                Retry.Run(() =>
+                {
+                    tryCount++;
+                    throw new TimeoutException("test");
+                }, retry);
+                Assert.Fail("should have thrown an exception");
+            }
+            catch (Exception)
+            {
+                Assert.AreEqual(5, tryCount);
             }
         }
 
         [TestCase(0)]
         [TestCase(1)]
-        [TestCase(2)]
-        [TestCase(3)]
-        [TestCase(4)]
         [TestCase(99)]
-        public void ShouldNotRetryPermanentWebErrors(int maxRetries)
+        public void ShouldNotRetryNonWebErrors(int maxRetries)
         {
-            var runCount = 0;
+            var tryCount = 0;
             var shouldRetry = new HttpTransientShouldRetry(maxRetries);
             var nextWait = new NoWait();
             var retry = new RetryStrategy(shouldRetry, nextWait);
@@ -56,7 +112,7 @@ namespace Tests
             {
                 Retry.Run(() =>
                 {
-                    runCount++;
+                    tryCount++;
                     // make sure it retries the number of expected times by throwing an exception
                     throw new Exception();
                 }, retry);
@@ -64,7 +120,7 @@ namespace Tests
             }
             catch (Exception)
             {
-                Assert.IsTrue(runCount == maxRetries + 1);
+                Assert.IsTrue(tryCount == 1);
             }
         }
     }

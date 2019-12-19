@@ -26,6 +26,12 @@ namespace RetryPattern
 
         public virtual TimeSpan NextWait(int failCount)
         {
+            // the minimum value is 1
+            failCount = Math.Max(1, failCount);
+
+            if (failCount == 1)
+                return TimeSpan.Zero;
+
             return TimeSpan.FromMilliseconds(Factor);
         }
     }

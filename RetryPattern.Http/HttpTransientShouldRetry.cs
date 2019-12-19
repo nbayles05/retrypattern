@@ -22,7 +22,7 @@ namespace RetryPattern
                 HttpStatusCode.TooManyRequests,
             };
 
-        private static readonly List<HttpStatusCode> _tryOnceResponseStatusCodes =
+        private static readonly List<HttpStatusCode> _retryOnceResponseStatusCodes =
             new List<HttpStatusCode>
             {
                 HttpStatusCode.Unauthorized,
@@ -38,7 +38,7 @@ namespace RetryPattern
                  WebExceptionStatus.Timeout,                 
              };
 
-        private static readonly List<WebExceptionStatus> _tryOnceExceptionStatuses =
+        private static readonly List<WebExceptionStatus> _retryOnceExceptionStatuses =
             new List<WebExceptionStatus>
             {
                 WebExceptionStatus.CacheEntryNotFound,
@@ -48,7 +48,7 @@ namespace RetryPattern
                 WebExceptionStatus.Pending,
                 WebExceptionStatus.PipelineFailure,
                 WebExceptionStatus.SendFailure,
-                WebExceptionStatus.TrustFailure
+                WebExceptionStatus.TrustFailure                
             };
 
         public HttpTransientShouldRetry()
@@ -84,7 +84,7 @@ namespace RetryPattern
             // try looking at the web exception status to see if it's a transient exception
             // there are some errors we will retry only once
             if (_transientExceptionStatuses.Contains(wex.Status) ||
-                (failCount == 1 && _tryOnceExceptionStatuses.Contains(wex.Status)))
+                (failCount == 1 && _retryOnceExceptionStatuses.Contains(wex.Status)))
             {
                 return true;
             }
@@ -95,7 +95,7 @@ namespace RetryPattern
             if (response != null)
             {
                 if (_transientResponseStatusCodes.Contains(response.StatusCode) ||
-                    failCount ==1 && _tryOnceResponseStatusCodes.Contains(response.StatusCode))
+                    failCount ==1 && _retryOnceResponseStatusCodes.Contains(response.StatusCode))
                 {
                     return true;
                 }

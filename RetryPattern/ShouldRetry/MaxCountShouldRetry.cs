@@ -23,7 +23,7 @@ namespace RetryPattern
 
         public virtual bool ShouldRetry(Exception ex, int failCount)
         {
-            return failCount <= MaxFailCount;
+            return failCount < MaxFailCount;
         }
     }
 }

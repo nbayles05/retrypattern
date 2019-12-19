@@ -63,16 +63,17 @@ namespace RetryPattern
 
         public TimeSpan NextWait(int failCount)
         {
+            // the minimum value is 1
+            failCount = Math.Max(1, failCount);
+
             // if it's the first fail and we should retry immediately, just do it
-            if (failCount == 0 && ImmediateFirstRetry)
+            if (failCount == 1 && ImmediateFirstRetry)
             {
                 return TimeSpan.Zero;
             }
 
             // since we are using a 32 bit int, the max exponent can be 31
-            // at this point we know that if ImmediateFirstRetry is true that fail count
-            // will we greater than 0 so we are safe to subtract 1
-            var exponent = Math.Min(ImmediateFirstRetry ? failCount - 1 : failCount, 31);
+            var exponent = Math.Min(ImmediateFirstRetry ? failCount - 2 : failCount - 1, 31);
 
             // if ImmediateFirstRetry, we would follow this pattern
             // 0,1,2,4,8,16,32
