@@ -13,6 +13,8 @@ namespace RetryPattern
     /// </summary>
     public class HttpTransientShouldRetry : MaxCountShouldRetry, IShouldRetry
     {
+        // all these http status and error codes need some refinement
+        #region transient and retry once statuses and codes
         private static readonly List<HttpStatusCode> _transientResponseStatusCodes =
             new List<HttpStatusCode>
             {
@@ -50,6 +52,7 @@ namespace RetryPattern
                 WebExceptionStatus.SendFailure,
                 WebExceptionStatus.TrustFailure                
             };
+        #endregion
 
         public HttpTransientShouldRetry()
             : base()

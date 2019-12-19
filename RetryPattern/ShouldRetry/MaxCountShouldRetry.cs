@@ -26,4 +26,18 @@ namespace RetryPattern
             return failCount < MaxFailCount;
         }
     }
+
+    // you can inherit from MaxCountShouldRetry if you want to stop retrying after a maximum number of attempts
+    public class TimeoutShouldRetry : MaxCountShouldRetry, IShouldRetry
+    {
+        public override bool ShouldRetry(Exception ex, int failCount)
+        {
+            if (!base.ShouldRetry(ex, failCount))
+                return false;
+
+            return ex.GetType() == typeof(TimeoutException);
+        }
+    }
+
+
 }
