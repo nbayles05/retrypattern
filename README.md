@@ -2,6 +2,7 @@
 
 Flexible Retry pattern for both syncronous and asynchronous methods.
 
+
 ## Basic Usage
  
 Retry any exception with a simple increasing wait time between each attempt:
@@ -20,9 +21,6 @@ var result = Retry.Run(() =>
     return foo();
 });
 ```
-
-
-
 Retry any exception thrown by an asynchronous method with a simple increasing wait time between each attempt:
 ```
 await Retry.RunAsync(async () =>
@@ -41,9 +39,11 @@ var result = await Retry.RunAsync(async () =>
 ```
 
 ## Customize with IRetryStrategy
+
 If you want to retry only certain types of exceptions or you want to customize the wait time or maximum number of attempts, you will need to specify an **IRetryStrategy** which consists of:
 
 ### IShouldRetry
+
 _determines if we should retry_
 ```
 public interface IShouldRetry
@@ -53,8 +53,8 @@ public interface IShouldRetry
 ```
 * Use **MaxCountShouldRetry** to retry up to a configurable maximum number of times. (default)
 
-
 ### INextWait
+
 _calculates how long to wait before retrying_
 ```
 public interface INextWait
@@ -69,7 +69,7 @@ public interface INextWait
 
 ### Customized Example
 
-Here is an example of a custom IShouldRetry that will only retry TimeoutExceptions.  It inherits from MaxCountShouldRetry to gain the default functionality to stop retrying after a fixed number of attempts.
+Here is an example of a custom **IShouldRetry** that will only retry TimeoutExceptions.  It inherits from **MaxCountShouldRetry** to gain the default functionality to stop retrying after a fixed number of attempts.
 ```
 public class TimeoutShouldRetry : MaxCountShouldRetry, IShouldRetry
 {
@@ -83,7 +83,6 @@ public class TimeoutShouldRetry : MaxCountShouldRetry, IShouldRetry
 }
 ```
 
-
 To use your custom **IShouldRetry** -or- **INextWait**, call any **Retry.Run** or **Retry.RunAsync** methods passing a RetryStrategy:
 ```
 var result = await Retry.RunAsync(async () =>
@@ -94,9 +93,9 @@ var result = await Retry.RunAsync(async () =>
 ```
 
 ## HttpRetryStrategy and HttpTransientShouldRetry
-This is an example of how you might customize a RetryStrategy for your app(s) and make it available to in a simple way to all areas of your app that do something similar with similar desired behavior.
+This is an example of how you might use the factory pattern to create a consistent, reusable RetryStrategy in your apps:
 
-**HttpRetryStrategy** gives a simple factory to create a reusable IRetryStrategy for all uses of Http calls.
+**HttpRetryStrategy** is a simple factory to create a reusable IRetryStrategy for Http calls.
 ```
 public static class HttpRetryStrategy
 {
@@ -112,5 +111,3 @@ public static class HttpRetryStrategy
 
 **HttpTransientShouldRetry** provides a customized implementation of IShouldRetry based on possible Error Codes and Http Status Codes that could be returned during web operations.
 [see HttpTransientShouldRetry.cs](/RetryPattern.Http/HttpTransientShouldRetry.cs)
-
-
