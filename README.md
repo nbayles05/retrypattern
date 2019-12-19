@@ -83,7 +83,7 @@ public class TimeoutShouldRetry : MaxCountShouldRetry, IShouldRetry
 }
 ```
 
-To use your custom **IShouldRetry** -or- **INextWait**, call any **Retry.Run** or **Retry.RunAsync** methods passing a RetryStrategy:
+To use your custom **IShouldRetry** -or- **INextWait**, call any **Retry.Run** or **Retry.RunAsync** method passing a RetryStrategy:
 ```
 var result = await Retry.RunAsync(async () =>
 {
@@ -107,6 +107,14 @@ public static class HttpRetryStrategy
         }
     }
 }
+```
+Using this pattern, the earlier example would be simplified to:
+```
+var result = await Retry.RunAsync(async () =>
+{
+    // return the result of something that might throw an exception
+    return await foo();
+}, HttpRetryStrategy.Default);
 ```
 
 **HttpTransientShouldRetry** provides a customized implementation of IShouldRetry based on possible Error Codes and Http Status Codes that could be returned during web operations.
