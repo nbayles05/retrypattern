@@ -2,6 +2,7 @@
 
 Flexible Retry pattern for both syncronous and asynchronous methods.
 
+![Build and Test](https://github.com/nbayles05/retrypattern/workflows/Build%20and%20Test/badge.svg)
 
 ## Basic Usage
  
