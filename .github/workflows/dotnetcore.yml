@@ -1,4 +1,4 @@
-name: RunTests
+name: Build and Test
 
 on:
   push:
