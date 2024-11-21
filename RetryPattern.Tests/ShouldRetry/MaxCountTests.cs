@@ -1,4 +1,4 @@
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RetryPattern;
 using System;
 
@@ -6,12 +6,13 @@ namespace Tests
 {
     public class MaxCountTests
     {
-        [TestCase(0, 1)]
-        [TestCase(1, 1)]
-        [TestCase(2, 2)]
-        [TestCase(3, 3)]
-        [TestCase(4, 4)]
-        [TestCase(99, 99)]
+        [TestMethod]
+        [DataRow(0, 1)]
+        [DataRow(1, 1)]
+        [DataRow(2, 2)]
+        [DataRow(3, 3)]
+        [DataRow(4, 4)]
+        [DataRow(99, 99)]
         public void ShouldRetryMaxTimes(int maxFailCount, int expectedTryCount)
         {
             var runCount = 0;

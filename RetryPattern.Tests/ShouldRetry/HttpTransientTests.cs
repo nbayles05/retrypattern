@@ -1,21 +1,20 @@
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RetryPattern;
 using System;
-using System.IO;
 using System.Net;
-using System.Net.Sockets;
 
 namespace Tests
 {
     public class HttpTransientTests
     {
+        [TestMethod]
         // should retry to the max number of times
-        [TestCase(HttpStatusCode.RequestTimeout, 5, 5)]
-        [TestCase(HttpStatusCode.TooManyRequests, 5, 5)]
+        [DataRow(HttpStatusCode.RequestTimeout, 5, 5)]
+        [DataRow(HttpStatusCode.TooManyRequests, 5, 5)]
         // should retry once
-        [TestCase(HttpStatusCode.Unauthorized, 5, 2)]
+        [DataRow(HttpStatusCode.Unauthorized, 5, 2)]
         // should never retry
-        [TestCase(HttpStatusCode.BadRequest, 5, 1)]
+        [DataRow(HttpStatusCode.BadRequest, 5, 1)]
         public void ShouldRetryHttpStatusCodes(HttpStatusCode statusCode, int maxFailCount, int expectedTryCount)
         {
             var tryCount = 0;
@@ -46,12 +45,13 @@ namespace Tests
             }
         }
 
+        [TestMethod]
         // this is a retry once error
-        [TestCase(WebExceptionStatus.CacheEntryNotFound, 5, 2)]
+        [DataRow(WebExceptionStatus.CacheEntryNotFound, 5, 2)]
         // this is a retry many error (transient)
-        [TestCase(WebExceptionStatus.Timeout, 5, 5)]
+        [DataRow(WebExceptionStatus.Timeout, 5, 5)]
         // this is a don't retry error
-        [TestCase(WebExceptionStatus.MessageLengthLimitExceeded, 5, 1)]
+        [DataRow(WebExceptionStatus.MessageLengthLimitExceeded, 5, 1)]
         public void ShouldRetrySomeWebExceptions(WebExceptionStatus statusCode, int maxFailCount, int expectedTryCount)
         {
             Assert.IsTrue(expectedTryCount <= maxFailCount, "Invalid expectedTryCount or maxFailCount");
@@ -76,6 +76,7 @@ namespace Tests
             }
         }
 
+        [TestMethod]
         public void ShouldRetryTimeoutException()
         {
             var tryCount = 0;
@@ -98,9 +99,10 @@ namespace Tests
             }
         }
 
-        [TestCase(0)]
-        [TestCase(1)]
-        [TestCase(99)]
+        [TestMethod]
+        [DataRow(0)]
+        [DataRow(1)]
+        [DataRow(99)]
         public void ShouldNotRetryNonWebErrors(int maxRetries)
         {
             var tryCount = 0;

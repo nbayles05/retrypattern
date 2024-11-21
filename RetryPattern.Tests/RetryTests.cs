@@ -1,4 +1,4 @@
-using NUnit.Framework;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RetryPattern;
 using System;
 using System.IO;
@@ -10,12 +10,13 @@ namespace Tests
 {
     public class RetryTests
     {
+        [TestMethod]
         // should never retry
-        [TestCase(0, 1)]
+        [DataRow(0, 1)]
         // should retry once
-        [TestCase(1, 1)]
+        [DataRow(1, 1)]
         // should retry up to the max
-        [TestCase(5, 5)]
+        [DataRow(5, 5)]
         public void ShouldRetryExpectedNumberOfTimes(int maxFailCount, int expectedTryCount)
         {
             var tryCount = 0;
@@ -39,12 +40,13 @@ namespace Tests
             }
         }
 
+        [TestMethod]
         // should never retry
-        [TestCase(0, 1)]
+        [DataRow(0, 1)]
         // should retry once
-        [TestCase(1, 1)]
+        [DataRow(1, 1)]
         // should retry up to the max
-        [TestCase(5, 5)]
+        [DataRow(5, 5)]
         public async Task ShouldRetryExpectedNumberOfTimesAsync(int maxFailCount, int expectedTryCount)
         {
             var tryCount = 0;
@@ -66,7 +68,7 @@ namespace Tests
             catch (Exception ex)
             {
                 // making sure this is raised as NotSupportedException instead of AggregateException
-                Assert.IsInstanceOf(typeof(NotSupportedException), ex);
+                Assert.IsInstanceOfType(ex, typeof(NotSupportedException));
                 Assert.AreEqual(expectedTryCount, tryCount);
             }
         }
